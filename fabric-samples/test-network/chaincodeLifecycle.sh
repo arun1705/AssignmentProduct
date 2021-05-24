@@ -131,41 +131,30 @@ chaincodeInvokeInit() {
     echo "===================== Succesfully Initilized the chaincode===================== "
 }
 
-chaincodeAddProperty() {
-    echo "===================== Started Add Property Chanicode Function===================== "
+chaincodeAddProduct() {
+    echo "===================== Started Add Product Chanicode Function===================== "
     setEnvVarsForPeer0Org1
     peer chaincode invoke -o $ORDERER_ADDRESS\
     --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED\
     --cafile $ORDERER_CA -C ${CHANNEL_NAME} --name ${CHAINCODE_NAME}\
     --peerAddresses localhost:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE_ORG1\
     --peerAddresses localhost:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE_ORG2\
-    -c '{"Args":["AddProperty", "1", "Property1","1000","John","1000"]}'
-    echo "===================== Successfully Added New Property===================== "
+    -c '{"Args":["AddProduct", "1", "Product1","1000","John","1000"]}'
+    echo "===================== Successfully Added New Product===================== "
 }
 
-chaincodeQueryPropertyById() {
-    echo "===================== Started Query property By Id Chanicode Function===================== "
+chaincodeQueryProductById() {
+    echo "===================== Started Query product By Id Chanicode Function===================== "
     setEnvVarsForPeer0Org1
     peer chaincode invoke -o $ORDERER_ADDRESS\
     --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED\
     --cafile $ORDERER_CA -C ${CHANNEL_NAME} --name ${CHAINCODE_NAME}\
     --peerAddresses localhost:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE_ORG1\
     --peerAddresses localhost:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE_ORG2\
-    -c '{"Args":["QueryPropertyById", "1"]}'
-    echo "===================== Successfully Invoked Query property By Id Chanicode Function===================== "
+    -c '{"Args":["QueryProductById", "1"]}'
+    echo "===================== Successfully Invoked Query product By Id Chanicode Function===================== "
 }
 
-chaincodeTransferPropertyOwnership() {
-    echo "===================== Started Property Ownership Transferred Chanicode Function===================== "
-    setEnvVarsForPeer0Org1
-    peer chaincode invoke -o $ORDERER_ADDRESS\
-    --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED\
-    --cafile $ORDERER_CA -C ${CHANNEL_NAME} --name ${CHAINCODE_NAME}\
-    --peerAddresses localhost:7051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE_ORG1\
-    --peerAddresses localhost:9051 --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE_ORG2\
-    -c '{"Args":["TransferProperty", "1","Mark"]}'
-    echo "===================== Successfully Invoked Property Ownership Transferred Chanicode Function===================== "
-}
 
 
 packageChaincode
@@ -179,8 +168,6 @@ commitChaincodeDefination
 queryCommitted
 chaincodeInvokeInit
 sleep 5
-chaincodeAddProperty
+chaincodeAddProduct
 sleep 5
-chaincodeQueryPropertyById
-sleep 5
-chaincodeTransferPropertyOwnership
+chaincodeQueryProductById

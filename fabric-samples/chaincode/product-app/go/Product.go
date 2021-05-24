@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+
+	"github.com/hyperledger/fabric-chaincode-go/pkg/cid"
 )
 
 // SmartContract provides functions for managing a car
@@ -27,35 +29,23 @@ type QueryResult struct {
 	Record *Product
 }
 
-// InitLedger adds a base set of cars to the ledger
-// func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-// 	cars := []Car{
-// 		Car{Make: "Toyota", Model: "Prius", Colour: "blue", Owner: "Tomoko"},
-// 		Car{Make: "Ford", Model: "Mustang", Colour: "red", Owner: "Brad"},
-// 		Car{Make: "Hyundai", Model: "Tucson", Colour: "green", Owner: "Jin Soo"},
-// 		Car{Make: "Volkswagen", Model: "Passat", Colour: "yellow", Owner: "Max"},
-// 		Car{Make: "Tesla", Model: "S", Colour: "black", Owner: "Adriana"},
-// 		Car{Make: "Peugeot", Model: "205", Colour: "purple", Owner: "Michel"},
-// 		Car{Make: "Chery", Model: "S22L", Colour: "white", Owner: "Aarav"},
-// 		Car{Make: "Fiat", Model: "Punto", Colour: "violet", Owner: "Pari"},
-// 		Car{Make: "Tata", Model: "Nano", Colour: "indigo", Owner: "Valeria"},
-// 		Car{Make: "Holden", Model: "Barina", Colour: "brown", Owner: "Shotaro"},
-// 	}
-
-// 	for i, car := range cars {
-// 		carAsBytes, _ := json.Marshal(car)
-// 		err := ctx.GetStub().PutState("CAR"+strconv.Itoa(i), carAsBytes)
-
-// 		if err != nil {
-// 			return fmt.Errorf("Failed to put to world state. %s", err.Error())
-// 		}
-// 	}
-
-// 	return nil
-// }
-
 // AddProduct adds a new product to the world state with given details
 func (s *SmartContract) AddProduct(ctx contractapi.TransactionContextInterface,id string, name string, description string, prize int, colour string) error {
+	val, ok, err := cid.GetAttributeValue(ctx, "role")
+	if err != nil {
+		// There was an error trying to retrieve the attribute
+		return fmt.Errorf("Error while retriving attributes")
+	}
+	if !ok {
+		// The client identity does not possess the attribute
+		return fmt.Errorf("Client identity doesnot posses the attribute")
+	}
+	
+	if val != "approver" {
+		fmt.Println("Attribute role: " + val)
+		return fmt.Errorf("Only user with role as APPROVER have access this method!")
+	} else {
+	
 	productJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
         return fmt.Errorf("Failed to read the data from world state", err)
@@ -79,11 +69,28 @@ func (s *SmartContract) AddProduct(ctx contractapi.TransactionContextInterface,i
 	}
 
 	return ctx.GetStub().PutState(id, productAsBytes)
+
+    }
 }
 
 // This function returns all the existing products 
-func (s *SmartContract) QueryAllProduct(ctx contractapi.TransactionContextInterface,startKey string,endKey string) ([]*Product, error) {
-	productIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+func (s *SmartContract) QueryAllProduct(ctx contractapi.TransactionContextInterface) ([]*Product, error) {
+	val, ok, err := cid.GetAttributeValue(ctx, "role")
+	if err != nil {
+		// There was an error trying to retrieve the attribute
+		return fmt.Errorf("Error while retriving attributes")
+	}
+	if !ok {
+		// The client identity does not possess the attribute
+		return fmt.Errorf("Client identity doesnot posses the attribute")
+	}
+	
+	if val != "approver" {
+		fmt.Println("Attribute role: " + val)
+		return fmt.Errorf("Only user with role as APPROVER have access this method!")
+	} else {
+
+	productIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
 		return nil, err
 	}
@@ -106,12 +113,28 @@ func (s *SmartContract) QueryAllProduct(ctx contractapi.TransactionContextInterf
 	}
 
 	return products, nil
+   }
 }
 
 
 // This function helps to query the product by Id
 func (s *SmartContract) QueryProductById(ctx contractapi.TransactionContextInterface, id string) (*Product, error) {
-    productJSON, err := ctx.GetStub().GetState(id)
+	val, ok, err := cid.GetAttributeValue(ctx, "role")
+	if err != nil {
+		// There was an error trying to retrieve the attribute
+		return fmt.Errorf("Error while retriving attributes")
+	}
+	if !ok {
+		// The client identity does not possess the attribute
+		return fmt.Errorf("Client identity doesnot posses the attribute")
+	}
+	
+	if val != "approver" {
+		fmt.Println("Attribute role: " + val)
+		return fmt.Errorf("Only user with role as APPROVER have access this method!")
+	} else {
+
+	productJSON, err := ctx.GetStub().GetState(id)
     if err != nil {
         return nil, fmt.Errorf("Failed to read the data from world state", err)
     }
@@ -127,6 +150,44 @@ func (s *SmartContract) QueryProductById(ctx contractapi.TransactionContextInter
 		return nil, err
 	}
 	return product, nil
+    } 
+}
+
+
+func (s *SimpleChaincode) DeleteProductById(ctx contractapi.TransactionContextInterface, id string) (*Product, error) {
+	val, ok, err := cid.GetAttributeValue(ctx, "role")
+	if err != nil {
+		// There was an error trying to retrieve the attribute
+		return fmt.Errorf("Error while retriving attributes")
+	}
+	if !ok {
+		// The client identity does not possess the attribute
+		return fmt.Errorf("Client identity doesnot posses the attribute")
+	}
+	
+	if val != "approver" {
+		fmt.Println("Attribute role: " + val)
+		return fmt.Errorf("Only user with role as APPROVER have access this method!")
+	} else {
+
+	productJSON, err := ctx.GetStub().GetState(id)
+    if err != nil {
+        return nil, fmt.Errorf("Failed to read the data from world state", err)
+    }
+	
+    if productJSON == nil {
+		return nil, fmt.Errorf("the product %s does not exist", id)
+    }
+
+	var product *Product
+	err = json.Unmarshal(productJSON, &product)
+	if err != nil {
+		return nil, err
+	}
+
+	return ctx.GetStub().DeleteState(id)
+
+    }
 }
 
 

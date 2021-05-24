@@ -11,7 +11,7 @@ const path = require('path');
 const fs = require('fs');
 
 
-app.get('/api/queryallproperties', async function (req, res) {
+app.get('/api/queryallproducts', async function (req, res) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(__dirname, '..', 'fabric-samples','test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
@@ -38,11 +38,11 @@ app.get('/api/queryallproperties', async function (req, res) {
         const network = await gateway.getNetwork('testchannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('property');
+        const contract = network.getContract('product');
 
         // Evaluate the specified transaction
-        // queryAllProperties transaction - requires no arguments
-        const result = await contract.evaluateTransaction('QueryAllProperties');
+        // queryAllProducts transaction - requires no arguments
+        const result = await contract.evaluateTransaction('QueryAllProducts');
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
 
@@ -55,7 +55,7 @@ app.get('/api/queryallproperties', async function (req, res) {
     }
 });
 
-app.post('/api/addproperty/', async function (req, res) {
+app.post('/api/addproduct/', async function (req, res) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(__dirname, '..', 'fabric-samples','test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
@@ -82,11 +82,11 @@ app.post('/api/addproperty/', async function (req, res) {
         const network = await gateway.getNetwork('testchannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('property');
+        const contract = network.getContract('product');
 
         // submit the specified transaction
-        // AddProperty transaction - requires 5 argument, ex: (‘AddProperty’, '2', 'property2', '4000', 'Marry', '7890')
-        await contract.submitTransaction('AddProperty',req.body.id,req.body.propertyName,req.body.area,req.body.owner, req.body.value);
+        // AddProduct transaction - requires 5 argument, ex: (AddProduct, '1', 'product1', 'some desc', '1000', 'blue')
+        await contract.submitTransaction('AddProduct',req.body.id,req.body.productName,req.body.description,req.body.prize, req.body.colour);
         console.log('Transaction has been submitted');
         res.send('Transaction has been submitted');
 
@@ -99,7 +99,7 @@ app.post('/api/addproperty/', async function (req, res) {
     }
 });
 
-app.get('/api/querypropertybyid/:id', async function (req, res) {
+app.get('/api/queryproductbyid/:id', async function (req, res) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(__dirname, '..', 'fabric-samples','test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
@@ -126,12 +126,12 @@ app.get('/api/querypropertybyid/:id', async function (req, res) {
         const network = await gateway.getNetwork('testchannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('property');
+        const contract = network.getContract('product');
 
         // Evaluate the specified transaction
-        // QueryPropertyById transaction - requires one argument ex: ('QueryPropertyById', '2')
+        // QueryProductById transaction - requires one argument ex: ('QueryProductById', '1')
 
-        const result = await contract.evaluateTransaction('QueryPropertyById',req.params.id);
+        const result = await contract.evaluateTransaction('QueryProductById',req.params.id);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
 
@@ -144,7 +144,7 @@ app.get('/api/querypropertybyid/:id', async function (req, res) {
     }
 });
 
-app.put('/api/changepropertyownership/:id', async function (req, res) {
+app.post('/api/deleteproductbyid/', async function (req, res) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(__dirname, '..', 'fabric-samples','test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
@@ -171,12 +171,11 @@ app.put('/api/changepropertyownership/:id', async function (req, res) {
         const network = await gateway.getNetwork('testchannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('property');
+        const contract = network.getContract('product');
 
-        // Submit the specified transaction
-        // TransferProperty transaction - requires one argument ex: ('TransferProperty', '2', ‘John’)
-
-        await contract.submitTransaction('TransferProperty',req.params.id,req.body.newOwner);
+        // submit the specified transaction
+        // DeleteProductById transaction - requires 1 argument, ex: (AddProduct, '1')
+        await contract.submitTransaction('DeleteProductById',req.body.id);
         console.log('Transaction has been submitted');
         res.send('Transaction has been submitted');
 
