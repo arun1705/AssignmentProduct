@@ -105,7 +105,7 @@ func (s *SmartContract) QueryAllProduct(ctx contractapi.TransactionContextInterf
 		}
 
 		var product *Product
-		err = json.Unmarshal(productResponse.Value, &products)
+		err = json.Unmarshal(productResponse.Value, &product)
 		if err != nil {
 			return nil, err
 		}
